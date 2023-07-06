@@ -1,8 +1,8 @@
 using OpenAI;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class ConversationManager : MonoBehaviour
 {
@@ -17,6 +17,15 @@ public class ConversationManager : MonoBehaviour
     private void Awake()
     {
         sendButton.onClick.AddListener(OnSendButtonClicked);
+        
+        messages.Add(new ChatMessage()
+        {
+            Role = "system",
+            Content = "You are a Ready Player Me avatar, who exists in the metaverse." +
+                      "Ready Player Me is the worlds leading avatar platform for games and virtual worlds." +
+                      "Thousands of developers, brands, and creators are using Ready Player Me to deliver amazing virtual experiences to millions of users" +
+                      "Reply with maximum 32 words.",
+        });
     }
 
     private async void OnSendButtonClicked()
@@ -37,13 +46,20 @@ public class ConversationManager : MonoBehaviour
         {
             Messages = messages,
             Model = "gpt-3.5-turbo",
-            MaxTokens = 100,
+            MaxTokens = 32,
+        });
+        
+        var reply = resp.Choices[0].Message.Content;
+        
+        messages.Add(new ChatMessage()
+        {
+            Role = "assistant",
+            Content = reply,
         });
         
         animator.SetTrigger("Talk");
         
-        var response = resp.Choices[0].Message.Content;
-        conversationText.text += $"<b>AI:</b> {response}{Environment.NewLine}";
+        conversationText.text += $"<b>AI:</b> {reply}{Environment.NewLine}";
         sendButton.interactable = true;
     }
 }
