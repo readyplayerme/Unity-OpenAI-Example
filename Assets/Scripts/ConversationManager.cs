@@ -11,6 +11,7 @@ public class ConversationManager : MonoBehaviour
     [SerializeField] private Text conversationText;
     [SerializeField] private Animator animator;
 
+    // TODO: Provide your own API key as a string parameter
     private OpenAIApi openai = new OpenAIApi();
     private List<ChatMessage> messages = new List<ChatMessage>();
 
@@ -18,6 +19,7 @@ public class ConversationManager : MonoBehaviour
     {
         sendButton.onClick.AddListener(OnSendButtonClicked);
         
+        // Add initial promt message to conversation
         messages.Add(new ChatMessage()
         {
             Role = "system",
@@ -30,6 +32,7 @@ public class ConversationManager : MonoBehaviour
 
     private async void OnSendButtonClicked()
     {
+        // Append user message to conversation
         var message = inputField.text;
         conversationText.text = $"<b>You:</b> {message}{Environment.NewLine}";
         inputField.text = string.Empty;
@@ -42,6 +45,7 @@ public class ConversationManager : MonoBehaviour
             Content = message,
         });
 
+        // Send conversation to OpenAI ChatGPT endpoint
         var resp = await openai.CreateChatCompletion(new CreateChatCompletionRequest()
         {
             Messages = messages,
@@ -51,12 +55,14 @@ public class ConversationManager : MonoBehaviour
         
         var reply = resp.Choices[0].Message.Content;
         
+        // Append AI reply to conversation
         messages.Add(new ChatMessage()
         {
             Role = "assistant",
             Content = reply,
         });
         
+        // Play talk animation
         animator.SetTrigger("Talk");
         
         conversationText.text += $"<b>AI:</b> {reply}{Environment.NewLine}";
